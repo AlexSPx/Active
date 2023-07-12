@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "jsEngine": "hermes",
+    "ios": {
+      "jsEngine": "jsc"
+    },
+    "scheme": "acme",
+    "web": {
+      "bundler": "metro"
+    },
+    "name": "client",
+    "slug": "client",
+    "android":{"softwareKeyboardLayoutMode": "pan"}
+  }
+}
