@@ -1,4 +1,4 @@
-use actix_web::{Result};
+use actix_web::Result;
 use actix_web::dev::Payload;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::FromRequest;

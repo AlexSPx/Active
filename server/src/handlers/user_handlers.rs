@@ -1,5 +1,5 @@
 use chrono::Utc;
-use derive_more::{Display};
+use derive_more::Display;
 use diesel::{RunQueryDsl, result::{Error as DieselError, DatabaseErrorKind}, QueryDsl};
 use jsonwebtoken::{Header, encode, EncodingKey};
 use scrypt::{password_hash::{SaltString, rand_core::OsRng, PasswordHasher, PasswordHash, PasswordVerifier}, Scrypt};
@@ -79,13 +79,13 @@ impl User {
             .to_string()
             .to_owned();
 
-            let new_user = RegisterBody {
-                username: credentials.username,
-                firstname: credentials.firstname,
-                lastname: credentials.lastname,
-                email: credentials.email,
-                password: hashed_password,
-            };
+        let new_user = RegisterBody {
+            username: credentials.username,
+            firstname: credentials.firstname,
+            lastname: credentials.lastname,
+            email: credentials.email,
+            password: hashed_password,
+        };
 
         diesel::insert_into(users)
             .values(&new_user)
@@ -96,7 +96,7 @@ impl User {
     
     pub async fn login(credentials: LoginBody, conn: &mut DBPooledConnection) -> Result<User, LoginError> {
         use crate::schema::users::dsl::*;
-        use diesel::{expression_methods::ExpressionMethods};
+        use diesel::expression_methods::ExpressionMethods;
 
         let user_data: User = users.filter(email.eq(credentials.email))
             .get_result::<Self>(conn)
@@ -112,7 +112,7 @@ impl User {
 
     pub fn get_tokens_by_id(id: Uuid) -> Result<String, JWTError>{
         let expiration = Utc::now()
-            .checked_add_signed(chrono::Duration::minutes(60))
+            .checked_add_signed(chrono::Duration::hours(24))
             .expect("valid timestamp")
             .timestamp();
 

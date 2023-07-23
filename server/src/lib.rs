@@ -50,6 +50,12 @@ pub async fn run() -> std::io::Result<()> {
                     .route("/search", web::get().to(routes::exercise_routes::search_exercises))
                     .route("/{id}", web::get().to(routes::exercise_routes::get_exercise))
                 )
+                .service(web::scope("/workout")
+                    .route("/create", web::post().to(routes::workout_routes::create_workout))
+                    .route("", web::get().to(routes::workout_routes::get_workouts))
+                    .route("/record", web::post().to(routes::workout_routes::add_workout_record))
+                    .route("/history", web::get().to(routes::workout_routes::get_history))
+                )
             ) 
     })
     .bind(("0.0.0.0", 8080))?

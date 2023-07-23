@@ -1,1 +1,0 @@
-export const API_ADDRESS="https://01d0-77-77-22-7.ngrok-free.app/api";

@@ -3,10 +3,11 @@
 diesel::table! {
     exercise_records (id) {
         id -> Int4,
-        workout_record_id -> Nullable<Int4>,
-        exercise_id -> Nullable<Int4>,
-        reps -> Nullable<Array<Nullable<Int2>>>,
-        weight -> Nullable<Array<Nullable<Float4>>>,
+        user_id -> Nullable<Uuid>,
+        workout_record_id -> Int4,
+        exercise_id -> Int4,
+        reps -> Array<Nullable<Int2>>,
+        weight -> Array<Nullable<Float4>>,
     }
 }
 
@@ -46,22 +47,25 @@ diesel::table! {
 diesel::table! {
     workout_records (id) {
         id -> Int4,
-        workout_id -> Nullable<Uuid>,
         created_at -> Nullable<Timestamp>,
+        workout_id -> Nullable<Uuid>,
     }
 }
 
 diesel::table! {
     workouts (id) {
         id -> Uuid,
+        #[max_length = 255]
+        title -> Varchar,
         created_by -> Nullable<Uuid>,
-        updated_at -> Nullable<Timestamp>,
+        updated_at -> Timestamp,
+        structure_record_id -> Nullable<Int4>,
     }
 }
 
 diesel::joinable!(exercise_records -> exercises (exercise_id));
+diesel::joinable!(exercise_records -> users (user_id));
 diesel::joinable!(exercise_records -> workout_records (workout_record_id));
-diesel::joinable!(workout_records -> workouts (workout_id));
 diesel::joinable!(workouts -> users (created_by));
 
 diesel::allow_tables_to_appear_in_same_query!(
