@@ -1,7 +1,13 @@
 use actix_web::{Responder, web::{Data, self}, HttpResponse};
+use serde::Deserialize;
+use uuid::Uuid;
 
-use crate::{models::{workout_models::{CreateWorkoutRequest, CreateWorkoutRecordRequest}, user_models::Claims}, DBPool, handlers::workout_handler::{create_workout_hdl, get_workouts_hdl, create_record_hdl, get_history_hdl}};
+use crate::{models::{workout_models::{CreateWorkoutRequest, CreateWorkoutRecordRequest}, user_models::Claims}, DBPool, handlers::workout_handler::{create_workout_hdl, get_workouts_hdl, create_record_hdl, get_history_hdl, delete_workout_hdl}};
 
+#[derive(Deserialize, Debug)]
+pub struct WorkoutId {
+    id: Uuid
+}
 
 pub async fn create_workout(data: web::Json<CreateWorkoutRequest>, auth: Claims, pool: Data<DBPool>) -> impl Responder {
     let mut conn = pool.get().expect("couldn't get DB connection from pool");
@@ -37,4 +43,13 @@ pub async fn get_history(auth: Claims, pool: Data<DBPool>) -> impl Responder {
         Ok(records) => HttpResponse::Ok().json(records),
         Err(err) => HttpResponse::BadRequest().json(err.to_string()),
     }
+}
+
+pub async fn delete_workout(auth: Claims, data: web::Path<WorkoutId>, pool: Data<DBPool>) -> impl Responder {
+    let mut conn = pool.get().expect("couldn't get DB connection from pool");
+   
+   match delete_workout_hdl(auth.sub, data.id, &mut conn) {
+    Ok(_) => HttpResponse::Ok().finish(),
+    Err(err) => HttpResponse::BadRequest().json(err.to_string()),
+}
 }

@@ -145,3 +145,20 @@ pub fn get_history_hdl(user_id: Uuid, conn: &mut DBPooledConnection) -> Result<V
 
     Ok(workout_history)
 }
+
+pub fn delete_workout_hdl(user_id: Uuid, workout_id: Uuid, conn: &mut DBPooledConnection) -> Result<(), diesel::result::Error>{
+    use diesel::prelude::*;
+
+    let workout = diesel::delete(
+        workouts::table
+        .filter(workouts::id.eq(workout_id))
+        .filter(workouts::created_by.eq(user_id))
+    ).get_result::<Workout>(conn)?;
+
+    diesel::delete(
+        workout_records::table
+        .filter(workout_records::id.nullable().eq(workout.structure_record_id))
+    ).execute(conn)?;
+
+    Ok(())
+}

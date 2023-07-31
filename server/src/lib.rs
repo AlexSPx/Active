@@ -55,6 +55,7 @@ pub async fn run() -> std::io::Result<()> {
                     .route("", web::get().to(routes::workout_routes::get_workouts))
                     .route("/record", web::post().to(routes::workout_routes::add_workout_record))
                     .route("/history", web::get().to(routes::workout_routes::get_history))
+                    .route("/{id}", web::delete().to(routes::workout_routes::delete_workout))
                 )
             ) 
     })
