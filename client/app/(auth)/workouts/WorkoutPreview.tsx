@@ -1,11 +1,10 @@
 import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Text, useTheme } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { TabsParamList } from "../AuthRoutes";
 import { ScrollView } from "react-native-gesture-handler";
 import { useWorkout } from "../../../contexts/WorkoutContext";
-import useConfirmationDialog from "../../../components/ConfirmationDialog";
+import useConfirmationDialog from "../../../components/modals/ConfirmationDialog";
 import MainView from "../../../components/MainView";
 
 type Props = NativeStackScreenProps<TabsParamList, "WorkoutPreview">;

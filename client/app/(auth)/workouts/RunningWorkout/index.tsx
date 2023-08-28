@@ -3,7 +3,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { TabsParamList } from "../../AuthRoutes";
 import { View, FlatList } from "react-native";
 import { Button, useTheme } from "react-native-paper";
-import useErrorDialog from "../../../../components/ErrorInformationDialog";
+import useErrorDialog from "../../../../components/modals/ErrorInformationDialog";
 import MainView from "../../../../components/MainView";
 import { useWorkout } from "../../../../contexts/WorkoutContext";
 import { useAuthQuery } from "../../../../utils/authQuery";

@@ -1,6 +1,8 @@
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 
 export async function saveToken(value: string) {
+  if (!value) return;
+
   await SecureStore.setItemAsync("access_token", value);
 }
 
@@ -9,15 +11,15 @@ export async function removeToken() {
 }
 
 export async function getToken() {
-    let result = await SecureStore.getItemAsync("access_token");
-    if (result) {
-      return {
-        success: true,
-        value: result
-      }
-    } else {
-      return {
-        success: false
-      }
-    }
+  let result = await SecureStore.getItemAsync("access_token");
+  if (result) {
+    return {
+      success: true,
+      value: result,
+    };
+  } else {
+    return {
+      success: false,
+    };
   }
+}

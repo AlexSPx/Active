@@ -16,6 +16,7 @@ import { theme as AppTheme } from "./themes/theme";
 import { useMaterial3Theme } from "@pchmn/expo-material3-theme";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ModalProvider } from "./contexts/ModalContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -66,8 +67,10 @@ const layout = () => {
           <WorkoutProvider>
             <SafeAreaProvider>
               <PaperProvider theme={paperTheme}>
-                <StatusBar backgroundColor={paperTheme.colors.background} />
-                <ScreenManager />
+                <ModalProvider>
+                  <StatusBar backgroundColor={paperTheme.colors.background} />
+                  <ScreenManager />
+                </ModalProvider>
               </PaperProvider>
             </SafeAreaProvider>
           </WorkoutProvider>

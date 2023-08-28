@@ -18,7 +18,7 @@ import {
 } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
-import useErrorDialog from "../../../components/ErrorInformationDialog";
+import useErrorDialog from "../../../components/modals/ErrorInformationDialog";
 import { useAuthQuery } from "../../../utils/authQuery";
 import MainView from "../../../components/MainView";
 import { MD3Colors } from "react-native-paper/lib/typescript/src/types";
