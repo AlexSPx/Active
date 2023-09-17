@@ -7,21 +7,21 @@ import useErrorDialog from "../../../../components/modals/ErrorInformationDialog
 import MainView from "../../../../components/MainView";
 import { useWorkout } from "../../../../contexts/WorkoutContext";
 import { useAuthQuery } from "../../../../utils/authQuery";
-import { Exercise } from "./Exercise";
+import Exercise from "./Exercise";
+import { useRecoilState } from "recoil";
+import {
+  currentExercisesAtom,
+  useResetRunningWorkout,
+} from "../../../../contexts/RunnigWorkoutContext";
 
 export default function RunningWorkout({
   navigation,
 }: NativeStackScreenProps<TabsParamList>) {
-  const {
-    runningWorkout,
-    addSet,
-    toggleFinish,
-    checkFinished,
-    resetWorkout,
-    editValue,
-    deleteSet,
-  } = useWorkout();
   const { makeRequest, error } = useAuthQuery();
+
+  const resetWorkout = useResetRunningWorkout();
+
+  const [exercises, setExercises] = useRecoilState(currentExercisesAtom);
 
   const { colors } = useTheme();
   const [ErrorDialog, showDialog] = useErrorDialog();
@@ -31,29 +31,29 @@ export default function RunningWorkout({
     navigation.navigate("workouts");
   };
 
-  const finishWorkout = useCallback(async () => {
-    if (!runningWorkout) return;
-    if (!checkFinished()) {
-      showDialog("You have unfinished workouts!");
-      return;
-    }
+  // const finishWorkout = useCallback(async () => {
+  //   if (!runningWorkout) return;
+  //   if (!checkFinished()) {
+  //     showDialog("You have unfinished workouts!");
+  //     return;
+  //   }
 
-    const body = {
-      workout_id: runningWorkout.workout_id,
-      exercises: runningWorkout.exercises.map((exercise) => {
-        return {
-          exercise_id: exercise.exercise_id,
-          reps: exercise.reps,
-          weight: exercise.weight,
-        };
-      }),
-    };
+  //   const body = {
+  //     workout_id: runningWorkout.workout_id,
+  //     exercises: runningWorkout.exercises.map((exercise) => {
+  //       return {
+  //         exercise_id: exercise.exercise_id,
+  //         reps: exercise.reps,
+  //         weight: exercise.weight,
+  //       };
+  //     }),
+  //   };
 
-    await makeRequest("/workout/record", "POST", body);
-    if (!error) {
-      handleResetWorkout();
-    }
-  }, [runningWorkout, checkFinished, makeRequest, error, handleResetWorkout]);
+  //   await makeRequest("/workout/record", "POST", body);
+  //   if (!error) {
+  //     handleResetWorkout();
+  //   }
+  // }, [runningWorkout, checkFinished, makeRequest, error, handleResetWorkout]);
 
   const renderExerciseListFooter = useCallback(() => {
     return (
@@ -61,7 +61,7 @@ export default function RunningWorkout({
         <Button
           mode="contained-tonal"
           style={{ marginTop: 12 }}
-          onPress={finishWorkout}
+          // onPress={finishWorkout}
         >
           Finish Workout
         </Button>
@@ -78,22 +78,16 @@ export default function RunningWorkout({
         </Button>
       </View>
     );
-  }, [colors, finishWorkout, handleResetWorkout]);
+  }, []);
 
   return (
     <MainView colors={colors}>
       <ErrorDialog />
       <FlatList
-        data={runningWorkout?.exercises}
+        data={exercises}
         keyExtractor={(item) => item.exercise_id.toString()}
-        renderItem={({ item }) => (
-          <Exercise
-            exercise={item}
-            addSet={addSet}
-            deleteSet={deleteSet}
-            toggleFinish={toggleFinish}
-            editValue={editValue}
-          />
+        renderItem={({ item, index }) => (
+          <Exercise exercise={item} exerciseIndex={index} />
         )}
         ListFooterComponent={renderExerciseListFooter}
       />

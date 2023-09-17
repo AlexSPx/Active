@@ -3,9 +3,14 @@ import { Button, Text, useTheme } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { TabsParamList } from "../AuthRoutes";
 import { ScrollView } from "react-native-gesture-handler";
-import { useWorkout } from "../../../contexts/WorkoutContext";
 import useConfirmationDialog from "../../../components/modals/ConfirmationDialog";
 import MainView from "../../../components/MainView";
+import {
+  currentExercisesAtom,
+  currentWorkoutAtom,
+  isWorkoutRunningSelector,
+} from "../../../contexts/RunnigWorkoutContext";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 
 type Props = NativeStackScreenProps<TabsParamList, "WorkoutPreview">;
 
@@ -14,35 +19,37 @@ export default function WorkoutPreview({ route, navigation }: Props) {
   if (!workout) return null;
 
   const { colors } = useTheme();
-  const { startWorkout, isWorkoutRunning } = useWorkout();
 
+  const setExercises = useSetRecoilState(currentExercisesAtom);
+  const setWorkoutDetails = useSetRecoilState(currentWorkoutAtom);
+
+  const isWorkoutRunning = useRecoilValue(isWorkoutRunningSelector);
   const setWorkout = () => {
-    startWorkout({
+    setWorkoutDetails(() => ({
       title: workout.workout.title,
       workout_id: workout.workout.id,
-      exercises: [
-        ...workout.structure_record.exercises.map((exercise) => {
-          return {
-            id: exercise.id,
-            exercise_id: exercise.exercise_id,
-            title: exercise.title,
-            prevReps: exercise.reps,
-            reps: exercise.reps,
-            prevWeight: exercise.weight,
-            weight: exercise.weight,
-            finished: new Array(exercise.reps.length).fill(false),
-          };
-        }),
-      ],
-    });
+    }));
 
+    setExercises(() => [
+      ...workout.structure_record.exercises.map((exercise) => {
+        return {
+          exercise_id: exercise.exercise_id,
+          title: exercise.title,
+          sets: exercise.reps.map((reps, idx) => ({
+            reps,
+            weight: exercise.weight[idx],
+            finished: false,
+          })),
+        };
+      }),
+    ]);
     navigation.navigate("RunningWorkout");
   };
 
   const [ConfirmationDialog, showDialog] = useConfirmationDialog(setWorkout);
 
   const handleStartWorkout = () => {
-    if (isWorkoutRunning())
+    if (isWorkoutRunning)
       showDialog(
         "There is a workout currently running, do you wish to continue?"
       );

@@ -2,7 +2,6 @@ import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import LeftSwipeableComponent from "../../components/LeftSwipeableComponent";
 
 export default function Home() {
   const { user } = useAuth();

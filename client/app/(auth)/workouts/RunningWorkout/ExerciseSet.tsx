@@ -1,51 +1,59 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { DataTable, TextInput, useTheme } from "react-native-paper";
-import { WorkoutExerciseCurrent } from "../../../../contexts/WorkoutContext";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import {
+  ExerciseSet as ExerciseSetProps,
+  currentExercisesAtom,
+  setSetReps,
+  toggleFinishExerciseSet,
+} from "../../../../contexts/RunnigWorkoutContext";
+import { useSetRecoilState } from "recoil";
 
-type ExerciseSetCardProps = {
-  idx: number;
-  reps: number;
-  exercise: WorkoutExerciseCurrent;
-  toggleFinish: (id: number, idx: number) => void;
-  inputFinishAwait: (type: "reps" | "weight", id: number, e: string) => void;
-};
-
-export const ExerciseSet = ({
-  exercise,
-  toggleFinish,
-  inputFinishAwait,
-  idx,
-  reps,
-}: ExerciseSetCardProps) => {
+const ExerciseSet = ({
+  set,
+  exerciseIndex,
+  setIndex,
+}: {
+  set: ExerciseSetProps;
+  exerciseIndex: number;
+  setIndex: number;
+}) => {
   const { colors } = useTheme();
+
+  const setExercises = useSetRecoilState(currentExercisesAtom);
 
   return (
     <DataTable.Row
       style={{
-        backgroundColor: exercise.finished[idx]
+        backgroundColor: set.finished
           ? colors.elevation.level3
           : colors.background,
       }}
     >
       <DataTable.Cell style={exerciseSetStyles.smallCell}>
-        {idx + 1}
+        {setIndex + 1}
       </DataTable.Cell>
       <WorkoutTabelCell
-        value={exercise.weight[idx]}
-        onChange={(t: string) => inputFinishAwait("weight", idx, t)}
+        value={set.weight}
+        onChange={(t: string) =>
+          setExercises((prev) =>
+            setSetReps(prev, exerciseIndex, setIndex, parseFloat(t))
+          )
+        } // set Weight
         styles={{
-          backgroundColor: exercise.finished[idx]
+          backgroundColor: set.finished
             ? colors.primaryContainer
             : colors.surfaceVariant,
         }}
       />
       <WorkoutTabelCell
-        value={reps}
-        onChange={(t: string) => inputFinishAwait("reps", idx, t)}
+        value={set.reps}
+        onChange={(t: string) =>
+          setExercises((prev) => setSetReps(prev, exerciseIndex, setIndex, ~~t))
+        } // set Reps
         styles={{
-          backgroundColor: exercise.finished[idx]
+          backgroundColor: set.finished
             ? colors.primaryContainer
             : colors.surfaceVariant,
         }}
@@ -55,12 +63,16 @@ export const ExerciseSet = ({
           style={[
             exerciseSetStyles.finishButton,
             {
-              backgroundColor: exercise.finished[idx]
+              backgroundColor: set.finished
                 ? colors.primaryContainer
                 : colors.surfaceVariant,
             },
           ]}
-          onPress={() => toggleFinish(exercise.exercise_id, idx)}
+          onPress={() =>
+            setExercises((prev) => {
+              return toggleFinishExerciseSet(prev, exerciseIndex, setIndex);
+            })
+          }
         >
           <Icon name="plus" size={20} />
         </TouchableOpacity>
@@ -134,3 +146,5 @@ const exerciseSetStyles = StyleSheet.create({
     padding: 0,
   },
 });
+
+export default memo(ExerciseSet);

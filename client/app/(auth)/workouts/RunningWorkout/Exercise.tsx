@@ -1,33 +1,25 @@
 import { FlatList, StyleSheet, View } from "react-native";
-import {
-  WorkoutExerciseCurrent,
-  addSetProps,
-  editValueProps,
-  deleteSetProps,
-} from "../../../../contexts/WorkoutContext";
+import { memo } from "react";
 import React from "react";
 import { DataTable, Button, Text } from "react-native-paper";
 import LeftSwipeableComponent from "../../../../components/LeftSwipeableComponent";
-import { ExerciseSet } from "./ExerciseSet";
-
-type ExerciseProps = {
-  exercise: WorkoutExerciseCurrent;
-  addSet: addSetProps;
-  editValue: editValueProps;
-  deleteSet: deleteSetProps;
-  toggleFinish: (id: number, idx: number) => void;
-};
-
-export const Exercise = ({
-  exercise,
+import ExerciseSet from "./ExerciseSet";
+import {
+  WorkoutExerciseCurrent,
+  currentExercisesAtom,
   addSet,
-  editValue,
-  deleteSet,
-  toggleFinish,
-}: ExerciseProps) => {
-  const inputFinishAwait = (type: "reps" | "weight", id: number, e: string) => {
-    editValue("current", exercise.exercise_id, type, id, parseInt(e));
-  };
+  removeSet,
+} from "../../../../contexts/RunnigWorkoutContext";
+import { useSetRecoilState } from "recoil";
+
+const Exercise = ({
+  exercise,
+  exerciseIndex,
+}: {
+  exercise: WorkoutExerciseCurrent;
+  exerciseIndex: number;
+}) => {
+  const setExercises = useSetRecoilState(currentExercisesAtom);
 
   return (
     <View style={{ marginVertical: 6 }}>
@@ -58,18 +50,18 @@ export const Exercise = ({
 
       <View style={{ flex: 1 }}>
         <FlatList
-          data={exercise.reps}
+          data={exercise.sets}
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item, index }) => (
             <LeftSwipeableComponent
-              onSwipe={() => deleteSet("current", exercise.exercise_id, index)}
+              onSwipe={() =>
+                setExercises((prev) => removeSet(prev, exerciseIndex, index))
+              } //handle set delete
             >
               <ExerciseSet
-                idx={index}
-                reps={item}
-                exercise={exercise}
-                toggleFinish={toggleFinish}
-                inputFinishAwait={inputFinishAwait}
+                set={item}
+                exerciseIndex={exerciseIndex}
+                setIndex={index}
               />
             </LeftSwipeableComponent>
           )}
@@ -79,13 +71,15 @@ export const Exercise = ({
       <Button
         mode="text"
         style={{ borderRadius: 10, marginTop: 12 }}
-        onPress={() => addSet("current", exercise.exercise_id, 0, 0)}
+        onPress={() => setExercises((prev) => addSet(prev, exerciseIndex))}
       >
         Add Set
       </Button>
     </View>
   );
 };
+
+export default memo(Exercise);
 
 const exerciseStyles = StyleSheet.create({
   title: {

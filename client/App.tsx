@@ -17,6 +17,7 @@ import { useMaterial3Theme } from "@pchmn/expo-material3-theme";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ModalProvider } from "./contexts/ModalContext";
+import { RecoilRoot } from "recoil";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -62,20 +63,22 @@ const layout = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <ExerciseSearchProvider>
-          <WorkoutProvider>
-            <SafeAreaProvider>
-              <PaperProvider theme={paperTheme}>
-                <ModalProvider>
-                  <StatusBar backgroundColor={paperTheme.colors.background} />
-                  <ScreenManager />
-                </ModalProvider>
-              </PaperProvider>
-            </SafeAreaProvider>
-          </WorkoutProvider>
-        </ExerciseSearchProvider>
-      </AuthProvider>
+      <RecoilRoot>
+        <AuthProvider>
+          <ExerciseSearchProvider>
+            <WorkoutProvider>
+              <SafeAreaProvider>
+                <PaperProvider theme={paperTheme}>
+                  <ModalProvider>
+                    <StatusBar backgroundColor={paperTheme.colors.background} />
+                    <ScreenManager />
+                  </ModalProvider>
+                </PaperProvider>
+              </SafeAreaProvider>
+            </WorkoutProvider>
+          </ExerciseSearchProvider>
+        </AuthProvider>
+      </RecoilRoot>
     </GestureHandlerRootView>
   );
 };

@@ -12,9 +12,10 @@ import Profile from "./profile";
 import { Appbar, Button, useTheme } from "react-native-paper";
 import WorkoutPreview from "./workouts/WorkoutPreview";
 import RunningWorkout from "./workouts/RunningWorkout";
-import { useWorkout } from "../../contexts/WorkoutContext";
 import History, { WorkoutHistoryProps } from "./workouts/History";
 import WorkoutHistory from "./workouts/WorkoutHistory";
+import { useRecoilValue } from "recoil";
+import { isWorkoutRunningSelector } from "../../contexts/RunnigWorkoutContext";
 
 export type TabsParamList = {
   home: undefined;
@@ -33,7 +34,7 @@ export default function AuthRoutes({
   navigation,
 }: NativeStackScreenProps<TabsParamList>) {
   const { colors } = useTheme();
-  const { isWorkoutRunning } = useWorkout();
+  const isWorkoutRunning = useRecoilValue(isWorkoutRunningSelector);
 
   return (
     <Tabs.Navigator
@@ -49,8 +50,7 @@ export default function AuthRoutes({
                   : props.route.name
               }
             />
-            {props.route.name ===
-            "RunningWorkout" ? null : isWorkoutRunning() ? (
+            {props.route.name === "RunningWorkout" ? null : isWorkoutRunning ? (
               <Button
                 mode="contained-tonal"
                 style={{
