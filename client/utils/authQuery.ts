@@ -4,7 +4,7 @@ import axios, {
   AxiosResponse,
   isAxiosError,
 } from "axios";
-import { getToken } from "./userTokens";
+import { getToken } from "./secureStore";
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { API_ADDRESS } from "./configs";
@@ -64,15 +64,12 @@ export const useAuthQuery = (auth: boolean = true) => {
       }
 
       if (response.status === 401) {
-        setError(response.body);
-      }
-
-      console.log(error);
+        setError(response.json());
+      } else setError(null);
 
       const data: T = await response.json();
       return data;
     } catch (err) {
-      setError(err);
       return null;
     } finally {
       setIsLoading(false);

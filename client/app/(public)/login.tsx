@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import TextInputComponent from "../../components/TextInputComponent";
-import { saveToken } from "../../utils/userTokens";
+import { saveToken } from "../../utils/secureStore";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button, Text, useTheme } from "react-native-paper";
 import { useAuthQuery } from "../../utils/authQuery";

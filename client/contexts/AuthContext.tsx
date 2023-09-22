@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { API_ADDRESS } from "../utils/configs";
-import { getToken, removeToken } from "../utils/userTokens";
+import { getToken, removeToken } from "../utils/secureStore";
 import axios from "axios";
 
 interface User {

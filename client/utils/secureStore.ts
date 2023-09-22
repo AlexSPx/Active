@@ -1,4 +1,5 @@
 import * as SecureStore from "expo-secure-store";
+import { Settings } from "../contexts/SettingsContext";
 
 export async function saveToken(value: string) {
   if (!value) return;
@@ -22,4 +23,15 @@ export async function getToken() {
       success: false,
     };
   }
+}
+
+export async function saveSettings(value: Settings) {
+  if (!value) return;
+
+  await SecureStore.setItemAsync("settings", JSON.stringify(value));
+}
+
+export async function getSettings(): Promise<Settings | null> {
+  let result = await SecureStore.getItemAsync("settings");
+  return result ? JSON.parse(result) : result;
 }

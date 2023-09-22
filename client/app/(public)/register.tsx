@@ -4,7 +4,7 @@ import TextInputComponent from "../../components/TextInputComponent";
 import { Button, Text, useTheme } from "react-native-paper";
 import { useAuth } from "../../contexts/AuthContext";
 import { useAuthQuery } from "../../utils/authQuery";
-import { saveToken } from "../../utils/userTokens";
+import { saveToken } from "../../utils/secureStore";
 import MainView from "../../components/MainView";
 
 export default function Register() {

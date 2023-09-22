@@ -15,7 +15,7 @@ import RunningWorkout from "./workouts/RunningWorkout";
 import History, { WorkoutHistoryProps } from "./workouts/History";
 import WorkoutHistory from "./workouts/WorkoutHistory";
 import { useRecoilValue } from "recoil";
-import { isWorkoutRunningSelector } from "../../contexts/RunnigWorkoutContext";
+import { isWorkoutRunningSelector } from "../../contexts/RunnigWorkoutState";
 
 export type TabsParamList = {
   home: undefined;

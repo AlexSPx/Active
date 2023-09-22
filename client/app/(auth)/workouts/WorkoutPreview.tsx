@@ -9,7 +9,7 @@ import {
   currentExercisesAtom,
   currentWorkoutAtom,
   isWorkoutRunningSelector,
-} from "../../../contexts/RunnigWorkoutContext";
+} from "../../../contexts/RunnigWorkoutState";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 
 type Props = NativeStackScreenProps<TabsParamList, "WorkoutPreview">;
@@ -36,8 +36,8 @@ export default function WorkoutPreview({ route, navigation }: Props) {
           exercise_id: exercise.exercise_id,
           title: exercise.title,
           sets: exercise.reps.map((reps, idx) => ({
-            reps,
-            weight: exercise.weight[idx],
+            reps: reps.toString(),
+            weight: exercise.weight[idx].toString(),
             finished: false,
           })),
         };

@@ -1,14 +1,18 @@
 import { useState, useEffect, memo } from "react";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { TouchableOpacity, StyleSheet, Keyboard } from "react-native";
 import { DataTable, TextInput, useTheme } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import {
   ExerciseSet as ExerciseSetProps,
+  WorkoutExerciseCurrent,
   currentExercisesAtom,
-  setSetReps,
-  toggleFinishExerciseSet,
-} from "../../../../contexts/RunnigWorkoutContext";
+} from "../../../../contexts/RunnigWorkoutState";
 import { useSetRecoilState } from "recoil";
+import {
+  setSetReps,
+  setSetWeight,
+  toggleFinishExerciseSet,
+} from "../../../../utils/exerciseHelpers";
 
 const ExerciseSet = ({
   set,
@@ -34,11 +38,18 @@ const ExerciseSet = ({
       <DataTable.Cell style={exerciseSetStyles.smallCell}>
         {setIndex + 1}
       </DataTable.Cell>
+
       <WorkoutTabelCell
         value={set.weight}
         onChange={(t: string) =>
-          setExercises((prev) =>
-            setSetReps(prev, exerciseIndex, setIndex, parseFloat(t))
+          setExercises(
+            (prev) =>
+              setSetWeight(
+                prev,
+                exerciseIndex,
+                setIndex,
+                t
+              ) as WorkoutExerciseCurrent[]
           )
         } // set Weight
         styles={{
@@ -47,17 +58,27 @@ const ExerciseSet = ({
             : colors.surfaceVariant,
         }}
       />
+
       <WorkoutTabelCell
         value={set.reps}
-        onChange={(t: string) =>
-          setExercises((prev) => setSetReps(prev, exerciseIndex, setIndex, ~~t))
-        } // set Reps
+        onChange={(t: string) => {
+          setExercises(
+            (prev) =>
+              setSetReps(
+                prev,
+                exerciseIndex,
+                setIndex,
+                t
+              ) as WorkoutExerciseCurrent[]
+          );
+        }} // set Reps
         styles={{
           backgroundColor: set.finished
             ? colors.primaryContainer
             : colors.surfaceVariant,
         }}
       />
+
       <DataTable.Cell style={exerciseSetStyles.smallCell}>
         <TouchableOpacity
           style={[
@@ -86,31 +107,23 @@ const WorkoutTabelCell = ({
   onChange,
   styles,
 }: {
-  value: number;
+  value: string;
   onChange: (t: string) => void;
   styles?: Object;
 }) => {
-  const [val, setVal] = useState("");
-
-  useEffect(() => {
-    const delay = setTimeout(() => onChange(val), 500);
-    return () => clearTimeout(delay);
-  }, [val]);
-
   return (
     <DataTable.Cell style={exerciseSetStyles.cell}>
       <TextInput
         underlineColor="transperent"
         keyboardType="numeric"
         style={[exerciseSetStyles.textInput, styles]}
-        value={val}
         cursorColor="rgba(0,0,0,1)"
         activeUnderlineColor="rgba(0,0,0,0.0)"
         outlineStyle={{
           borderRadius: 30,
         }}
-        placeholder={value.toString()}
-        onChangeText={(text) => setVal(text)}
+        value={value}
+        onChangeText={(text) => onChange(text)}
       />
     </DataTable.Cell>
   );

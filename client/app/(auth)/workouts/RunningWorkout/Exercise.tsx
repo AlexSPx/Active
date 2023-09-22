@@ -7,10 +7,9 @@ import ExerciseSet from "./ExerciseSet";
 import {
   WorkoutExerciseCurrent,
   currentExercisesAtom,
-  addSet,
-  removeSet,
-} from "../../../../contexts/RunnigWorkoutContext";
+} from "../../../../contexts/RunnigWorkoutState";
 import { useSetRecoilState } from "recoil";
+import { addSet, removeSet } from "../../../../utils/exerciseHelpers";
 
 const Exercise = ({
   exercise,
@@ -55,7 +54,14 @@ const Exercise = ({
           renderItem={({ item, index }) => (
             <LeftSwipeableComponent
               onSwipe={() =>
-                setExercises((prev) => removeSet(prev, exerciseIndex, index))
+                setExercises(
+                  (prev) =>
+                    removeSet(
+                      prev,
+                      exerciseIndex,
+                      index
+                    ) as WorkoutExerciseCurrent[]
+                )
               } //handle set delete
             >
               <ExerciseSet

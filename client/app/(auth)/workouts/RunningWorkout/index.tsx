@@ -5,23 +5,26 @@ import { View, FlatList } from "react-native";
 import { Button, useTheme } from "react-native-paper";
 import useErrorDialog from "../../../../components/modals/ErrorInformationDialog";
 import MainView from "../../../../components/MainView";
-import { useWorkout } from "../../../../contexts/WorkoutContext";
 import { useAuthQuery } from "../../../../utils/authQuery";
 import Exercise from "./Exercise";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
+  checkFinishedSelector,
   currentExercisesAtom,
+  currentWorkoutAtom,
   useResetRunningWorkout,
-} from "../../../../contexts/RunnigWorkoutContext";
-
+} from "../../../../contexts/RunnigWorkoutState";
 export default function RunningWorkout({
   navigation,
 }: NativeStackScreenProps<TabsParamList>) {
-  const { makeRequest, error } = useAuthQuery();
+  const { makeRequest, error, isLoading } = useAuthQuery();
 
   const resetWorkout = useResetRunningWorkout();
 
-  const [exercises, setExercises] = useRecoilState(currentExercisesAtom);
+  const [workout, _setWorkout] = useRecoilState(currentWorkoutAtom);
+  const [exercises, _setExercises] = useRecoilState(currentExercisesAtom);
+
+  const isFinished = useRecoilValue(checkFinishedSelector);
 
   const { colors } = useTheme();
   const [ErrorDialog, showDialog] = useErrorDialog();
@@ -31,29 +34,39 @@ export default function RunningWorkout({
     navigation.navigate("workouts");
   };
 
-  // const finishWorkout = useCallback(async () => {
-  //   if (!runningWorkout) return;
-  //   if (!checkFinished()) {
-  //     showDialog("You have unfinished workouts!");
-  //     return;
-  //   }
+  const finishWorkout = async () => {
+    if (!isFinished) {
+      showDialog("You have unfinished workouts!");
+      return;
+    }
 
-  //   const body = {
-  //     workout_id: runningWorkout.workout_id,
-  //     exercises: runningWorkout.exercises.map((exercise) => {
-  //       return {
-  //         exercise_id: exercise.exercise_id,
-  //         reps: exercise.reps,
-  //         weight: exercise.weight,
-  //       };
-  //     }),
-  //   };
+    const body = {
+      workout_id: workout.workout_id,
+      exercises: exercises.map((exercise) => {
+        const reps: number[] = [];
+        const weight: number[] = [];
+        const len = exercise.sets.length;
 
-  //   await makeRequest("/workout/record", "POST", body);
-  //   if (!error) {
-  //     handleResetWorkout();
-  //   }
-  // }, [runningWorkout, checkFinished, makeRequest, error, handleResetWorkout]);
+        for (let index = 0; index < len; index++) {
+          reps.push(parseInt(exercise.sets[index].reps));
+          weight.push(parseFloat(exercise.sets[index].weight));
+        }
+
+        return {
+          exercise_id: exercise.exercise_id,
+          reps,
+          weight,
+        };
+      }),
+    };
+
+    await makeRequest("/workout/record", "POST", body);
+    if (!error) {
+      handleResetWorkout();
+    }
+  };
+
+  console.log(error);
 
   const renderExerciseListFooter = useCallback(() => {
     return (
@@ -61,7 +74,9 @@ export default function RunningWorkout({
         <Button
           mode="contained-tonal"
           style={{ marginTop: 12 }}
-          // onPress={finishWorkout}
+          onPress={finishWorkout}
+          disabled={isLoading}
+          loading={isLoading}
         >
           Finish Workout
         </Button>
@@ -78,7 +93,7 @@ export default function RunningWorkout({
         </Button>
       </View>
     );
-  }, []);
+  }, [isFinished]);
 
   return (
     <MainView colors={colors}>
