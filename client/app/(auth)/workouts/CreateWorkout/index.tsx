@@ -4,7 +4,7 @@ import { Button, TextInput, useTheme } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import MainView from "../../../../components/MainView";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FlatList, ScrollView, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { useRecoilState } from "recoil";
 import {
   createExercisesAtom,
@@ -50,11 +50,9 @@ export default function CreateExercise({
         const weightArr: number[] = [];
         const repsArr: number[] = [];
         exercises.sets.forEach(({ reps, weight }) => {
-          weightArr.push(weight);
-          repsArr.push(reps);
+          weightArr.push(parseFloat(weight));
+          repsArr.push(parseInt(reps));
         });
-        console.log("reps", repsArr);
-        console.log("weight", weightArr);
 
         return {
           title: exercises.title,
@@ -64,14 +62,15 @@ export default function CreateExercise({
         };
       }),
     };
-    console.log(body);
 
-    makeRequest("/workout/create", "POST", body);
+    console.log(body.exercises[0]);
 
-    if (!error) {
-      cancelCreating();
-      navigation.navigate("workouts");
-    }
+    // makeRequest("/workout/create", "POST", body);
+
+    // if (!error) {
+    //   cancelCreating();
+    //   navigation.navigate("workouts");
+    // }
   };
 
   return (

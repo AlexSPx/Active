@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import LeftSwipeableComponent from "../../../../components/LeftSwipeableComponent";
 import { DataTable, TextInput, useTheme } from "react-native-paper";
 import {
@@ -63,6 +63,15 @@ const WorkoutTabelCell = ({
 }) => {
   const [inputValue, setInputValue] = useState(value);
 
+  const debouncedOnChange = useCallback(
+    debounce((text: string) => onChange(text), 300),
+    []
+  );
+
+  const handleInputChange = (text: string) => {
+    setInputValue(text);
+    debouncedOnChange(text);
+  };
   return (
     <DataTable.Cell style={{ justifyContent: "center" }}>
       <TextInput
@@ -79,18 +88,23 @@ const WorkoutTabelCell = ({
           borderRadius: 30,
         }}
         value={inputValue}
-        onChangeText={(text) => setInputValue(text)}
-        onEndEditing={() => onChange(inputValue)}
+        onChangeText={(text) => handleInputChange(text)}
       />
     </DataTable.Cell>
   );
 };
 
-function debounce(func: () => void, delay: number) {
-  let timeout: ReturnType<typeof setTimeout>;
-  return () => {
-    clearTimeout(timeout);
-    timeout = setTimeout(func, delay);
+function debounce<T extends (...args: any[]) => void>(func: T, delay: number) {
+  let timeoutId: ReturnType<typeof setTimeout>;
+
+  return function (...args: Parameters<T>) {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
   };
 }
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import TextInputComponent from "../../components/TextInputComponent";
+import { TextInputComponent } from "../../components/TextInputComponent";
 import { saveToken } from "../../utils/secureStore";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button, Text, useTheme } from "react-native-paper";
@@ -25,17 +25,19 @@ export default function Login() {
       password,
     });
 
-    if (error) {
-      addModal({
-        title: "Error",
-        body: "Something went wrong",
-        type: ModalNotificationTypesEnum.Error,
-      });
-      return;
-    }
+    // if (error) {
+    //   addModal({
+    //     title: "Error",
+    //     body: "Something went wrong",
+    //     type: ModalNotificationTypesEnum.Error,
+    //   });
+    //   return;
+    // }
 
-    await saveToken(data!.token);
-    fetchUser();
+    if (!error) {
+      await saveToken(data!.token);
+      fetchUser();
+    }
   };
 
   return (
@@ -64,13 +66,15 @@ export default function Login() {
         <TextInputComponent
           value={email}
           setValue={setEmail}
-          pHolder={"Email"}
+          placeholder={"Email"}
+          autoComplete="email"
         />
         <TextInputComponent
           value={password}
           setValue={setPassword}
-          pHolder={"Password"}
+          placeholder={"Password"}
           type="password"
+          autoComplete="password"
           secure={true}
         />
 

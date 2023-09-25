@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { API_ADDRESS } from "./configs";
 import { useNavigation } from "@react-navigation/native";
+import { ToastAndroid } from "react-native";
 
 export async function authHeaders(
   config?: AxiosRequestConfig<any>
@@ -45,6 +46,7 @@ export const useAuthQuery = (auth: boolean = true) => {
         headers: {
           ...headers,
           "Content-Type": "application/json",
+          Accept: "*/*",
         },
         body: body ? JSON.stringify(body) : undefined,
       };
@@ -63,11 +65,13 @@ export const useAuthQuery = (auth: boolean = true) => {
         signOut();
       }
 
-      if (response.status === 401) {
-        setError(response.json());
+      const data: T = await response.json();
+
+      if (response.status === 401 || response.status === 400) {
+        ToastAndroid.show(data as string, ToastAndroid.SHORT);
+        setError(data);
       } else setError(null);
 
-      const data: T = await response.json();
       return data;
     } catch (err) {
       return null;

@@ -1,0 +1,18 @@
+Welcome to Active, the premier gym logger app that's designed to revolutionize your fitness journey. Whether you're a fitness enthusiast, an aspiring athlete, or just looking to live a healthier lifestyle, Active has everything you need to help you succeed. With a sleek and user-friendly interface, this app empowers you to create, track, and optimize your workouts, making your path to a fitter and stronger you more accessible than ever before.
+
+Key Functionalities:
+
+Creating Workouts:
+
+Active provides you with the tools to craft personalized workout plans that align with your fitness objectives. With a comprehensive exercise library spanning strength training, cardio, flexibility, and more, you can easily design workouts that cater to your preferences and goals.
+Select exercises, specify sets and reps, set to create a workout that's uniquely yours.
+
+Logging Workouts:
+
+Recording your workouts is a breeze with Active. The app offers a seamless experience for tracking your exercise sessions.
+Log sets, reps, weights, and durations in real-time during your workouts.
+Mark completed exercises, update weights, and jot down notes to keep an accurate record of your progress.
+
+Workout History:
+
+Your complete workout history is readily available in Active, allowing you to review past sessions, identify trends, and make informed adjustments to your routines.

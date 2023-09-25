@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import TextInputComponent from "../../components/TextInputComponent";
+import { TextInputComponent } from "../../components/TextInputComponent";
 import { Button, Text, useTheme } from "react-native-paper";
 import { useAuth } from "../../contexts/AuthContext";
 import { useAuthQuery } from "../../utils/authQuery";
@@ -63,33 +63,37 @@ export default function Register() {
         <TextInputComponent
           value={username}
           setValue={setUsername}
-          pHolder={"Username"}
+          placeholder={"Username"}
+          autoComplete="username"
         />
         <TextInputComponent
           value={firstname}
           setValue={setFirstname}
-          pHolder={"First Name"}
+          placeholder={"First Name"}
+          autoComplete="name-given"
         />
         <TextInputComponent
           value={lastname}
           setValue={setLastname}
-          pHolder={"Last Name"}
+          placeholder={"Last Name"}
+          autoComplete="name-family"
         />
         <TextInputComponent
           value={email}
           setValue={setEmail}
-          pHolder={"Email"}
+          placeholder={"Email"}
+          autoComplete="email"
         />
         <TextInputComponent
           value={password}
           setValue={setPassword}
-          pHolder={"Password"}
+          placeholder={"Password"}
           secure={true}
         />
         <TextInputComponent
           value={cpassword}
           setValue={setCpassword}
-          pHolder={"Confirm Password"}
+          placeholder={"Confirm Password"}
           secure={true}
         />
 
