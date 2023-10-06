@@ -1,10 +1,12 @@
 use chrono::Utc;
 use derive_more::Display;
-use diesel::{RunQueryDsl, result::{Error as DieselError, DatabaseErrorKind}, QueryDsl};
+use diesel::{RunQueryDsl, result::{Error as DieselError, DatabaseErrorKind}, QueryDsl, ExpressionMethods, update};
 use jsonwebtoken::{Header, encode, EncodingKey};
 use scrypt::{password_hash::{SaltString, rand_core::OsRng, PasswordHasher, PasswordHash, PasswordVerifier}, Scrypt};
 use uuid::Uuid;
-use crate::{models::user_models::{RegisterBody, User, LoginBody, Claims}, DBPooledConnection };
+use crate::{models::user_models::{RegisterBody, User, LoginBody, Claims, GoogleRegister}, DBPooledConnection, schema::users };
+
+use super::google_handler::get_google_id_token_claims;
 
 #[derive(Debug, Display)]
 pub enum RegisterError {
@@ -27,7 +29,6 @@ impl RegisterBody {
     }
 }
 
-
 impl From<DieselError> for RegisterError {
     fn from(error: DieselError) -> Self {
         match error {
@@ -49,6 +50,8 @@ pub enum LoginError {
     InvalidEmail,
     #[display(fmt = "Wrong password")]
     WrongPassword,
+    #[display(fmt = "Missing password")]
+    MissingPassword,
     DatabaseError(String),
 }
 
@@ -84,7 +87,7 @@ impl User {
             firstname: credentials.firstname,
             lastname: credentials.lastname,
             email: credentials.email,
-            password: hashed_password,
+            password: hashed_password
         };
 
         diesel::insert_into(users)
@@ -96,16 +99,19 @@ impl User {
     
     pub async fn login(credentials: LoginBody, conn: &mut DBPooledConnection) -> Result<User, LoginError> {
         use crate::schema::users::dsl::*;
-        use diesel::expression_methods::ExpressionMethods;
 
         let user_data: User = users.filter(email.eq(credentials.email))
             .get_result::<Self>(conn)
             .map_err(LoginError::from)?;
 
-        let parsed_hash = PasswordHash::new(&user_data.password).unwrap();
-            Scrypt
-                .verify_password(&credentials.password.as_bytes(), &parsed_hash)
-                .map_err(|_| LoginError::WrongPassword)?;
+        let password_str: &str = user_data.password.as_ref().ok_or(LoginError::MissingPassword)?;
+
+
+        let parsed_hash = PasswordHash::new(password_str).unwrap();
+
+        Scrypt
+            .verify_password(&credentials.password.as_bytes(), &parsed_hash)
+            .map_err(|_| LoginError::WrongPassword)?;
 
         Ok(user_data)
     }
@@ -132,10 +138,70 @@ impl User {
         Self::get_tokens_by_id(self.id)
     }
 
-    pub fn get_user_by_id(userid: Uuid, conn: &mut DBPooledConnection) -> Result<User, diesel::result::Error>{
+    pub async fn connect_google_account(id_token: &str, user_id: &Uuid, conn: &mut DBPooledConnection) -> Result<bool, Box<dyn std::error::Error>>{
+        use crate::schema::users::dsl::*;
+        use diesel::prelude::*;
+
+        
+        let data =  get_google_id_token_claims(id_token).await?;
+        
+        let sub: String = data.sub.clone();
+
+        let google_connected_check: Result<Self, diesel::result::Error> = users.filter(gid.eq(sub))
+            .get_result::<Self>(conn);
+
+        if google_connected_check.is_ok() {return Err("Google account already in use".into());}
+
+        let user_has_google_account_check = Self::get_user_by_id(user_id, conn)?;
+        
+        if user_has_google_account_check.gid.is_some() {return Err("This user has already connected a google account".into());}
+        
+        let sub: String = data.sub.into();
+
+        print!("sub {:?}", sub);
+
+        update(users).filter(id.eq(user_id)).set((gid.eq(sub))).execute(conn)?;
+
+        Ok(true)
+    }
+
+    pub fn get_user_by_id(userid: &Uuid, conn: &mut DBPooledConnection) -> Result<User, diesel::result::Error>{
         use diesel::prelude::*;
         use crate::schema::users::dsl::*;
 
         users.find(userid).first(conn)
     }
+
+    pub async fn login_google(id_token: &str, conn: &mut DBPooledConnection) -> Result<Self, Box<dyn std::error::Error>> {
+        use crate::schema::users::dsl::*;
+
+        let data = get_google_id_token_claims(id_token).await?;
+
+        let user_data: User = users.filter(gid.eq(data.sub))
+            .get_result::<Self>(conn)?;
+
+        Ok(user_data)
+    }
+
+    pub async fn register_google_account(_username: &String, id_token: &str, conn: &mut DBPooledConnection) -> Result<Self, Box<dyn std::error::Error>> {
+        use crate::schema::users::dsl::*;
+
+        let data = get_google_id_token_claims(id_token).await?;
+
+        let new_user = GoogleRegister {
+            username: _username.to_owned(),
+            email: data.email,
+            firstname: data.given_name,
+            lastname: data.family_name,
+            gid: data.sub,
+            isconfirmed: data.email_verified,
+        };
+
+        let user = diesel::insert_into(users)
+            .values(&new_user)
+            .get_result::<Self>(conn)?;
+        
+        Ok(user)
+    }
+
 }

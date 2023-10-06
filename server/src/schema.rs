@@ -38,9 +38,10 @@ diesel::table! {
         firstname -> Varchar,
         #[max_length = 255]
         lastname -> Varchar,
-        password -> Text,
+        password -> Nullable<Text>,
         email -> Text,
         isconfirmed -> Bool,
+        gid -> Nullable<Text>,
     }
 }
 
