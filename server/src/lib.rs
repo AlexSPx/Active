@@ -4,6 +4,7 @@ use dotenvy::dotenv;
 use diesel::{r2d2::ConnectionManager, PgConnection};
 use r2d2::{PooledConnection, Pool};
 
+
 mod models;
 mod handlers;
 mod routes;
@@ -30,6 +31,7 @@ pub async fn run() -> std::io::Result<()> {
     let pool = r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create pool");
+
 
     HttpServer::new(move || {
 

@@ -25,6 +25,6 @@ impl FromRequest for Claims {
         }
 
         // If the bearer token is not found or is invalid, return an unauthorized error
-        ready(Err(ErrorUnauthorized("Invalid token")))
+        ready(Err(ErrorUnauthorized("Invalid access token")))
     }
 }
